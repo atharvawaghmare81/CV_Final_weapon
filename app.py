@@ -9,7 +9,7 @@ MODEL_PATH = "best.pt"  # relative path
 model = YOLO(MODEL_PATH)
 
 # App title and description
-st.title("Object Detection App")
+st.title("Weapon Recognition App")
 st.write("Upload an image or video for object detection, or use your webcam.")
 
 # Sidebar for input options
@@ -93,5 +93,4 @@ elif input_type == "Webcam":
         cap.release()
         cv2.destroyAllWindows()
 
-# Footer
-st.write("Made with ❤️ using Streamlit and YOLO.")
+
