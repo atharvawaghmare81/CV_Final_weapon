@@ -1,49 +1,72 @@
-import streamlit as st
-from ultralytics import YOLO
-from streamlit_webrtc import webrtc_streamer
-import av
-import cv2
-import numpy as np
+# import streamlit as st
+# from PIL import Image
+# import numpy as np
+# from ultralytics import YOLO
+# from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+# import av  # Required for frame handling with WebRTC
 
-# Load your YOLO model (replace 'best.pt' with your trained model file)
-MODEL_PATH = "best.pt"
-model = YOLO(MODEL_PATH)
+# # Load your model (replace 'best.pt' with your trained model file)
+# MODEL_PATH = "best.pt"
+# model = YOLO(MODEL_PATH)
+
+# # App title and description
+# st.title("Weapon Recognition App")
+# st.write("Upload an image or use your webcam for weapon detection.")
+
+# # Sidebar for input options
+# st.sidebar.header("Input Options")
+# input_type = st.sidebar.radio("Choose an input source:", ("Upload Image", "Webcam"))
+
+# # Detection function
+# def detect_objects(image):
+#     # Perform inference using the YOLO model
+#     results = model(image)
+#     # Render the results on the image
+#     annotated_image = results[0].plot()
+#     return annotated_image
+
+# # Handle uploaded images
+# if input_type == "Upload Image":
+#     uploaded_file = st.sidebar.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+
+#     if uploaded_file is not None:
+#         # Read the image file
+#         image = Image.open(uploaded_file)
+#         st.image(image, caption="Uploaded Image", use_column_width=True)
+#         st.write("Processing...")
+
+#         # Convert image to OpenCV format
+#         image_np = np.array(image)
+#         processed_image = detect_objects(image_np)
+
+#         # Display the results
+#         st.image(processed_image, caption="Detected Objects", use_column_width=True)
+
+# # Webcam processing using streamlit-webrtc
+# elif input_type == "Webcam":
+#     class VideoTransformer(VideoTransformerBase):
+#         def transform(self, frame):
+#             # Convert the WebRTC frame to an OpenCV image
+#             img = frame.to_ndarray(format="bgr24")
+#             # Detect objects in the frame
+#             processed_frame = detect_objects(img)
+#             # Convert the processed frame back to BGR format
+#             return av.VideoFrame.from_ndarray(processed_frame, format="bgr24")
+
+#     webrtc_streamer(
+#         key="weapon-detection",
+#         video_transformer_factory=VideoTransformer,
+#         media_stream_constraints={"video": True, "audio": False},  # Only enable video
+#     )
 
 
-# App title and description
-st.title("Object Detection App")
-st.write("Upload an image or video for object detection, or use your webcam.")
-
-# Detection function
-def detect_objects(frame):
-    # Perform detection using YOLO model
-    results = model(frame)
-    # Annotate the frame with detection results
-    annotated_frame = results[0].plot()
-    return annotated_frame
 
 
-# Define the video frame callback
-def video_frame_callback(frame):
-    # Convert the incoming frame to a NumPy array (OpenCV format)
-    img = frame.to_ndarray(format="bgr24")
 
-    # Perform object detection on the frame
-    processed_frame = detect_objects(img)
 
-    # Return the annotated frame as a VideoFrame
-    return av.VideoFrame.from_ndarray(processed_frame, format="bgr24")
 
-# Streamlit app title and description
-st.title("Weapon Detection App")
-st.write("This app uses your webcam to detect weapons in real-time.")
 
-# Streamlit-WebRTC streamer
-webrtc_streamer(
-    key="weapon-detection",
-    video_frame_callback=video_frame_callback,
-    media_stream_constraints={"video": True, "audio": False},  # Enable only video stream
-)
+
 
 
 
@@ -151,5 +174,72 @@ webrtc_streamer(
 #         cap.release()
 #         cv2.destroyAllWindows()
 
-# Footer
-st.write("Made By Shashank Patil and Atharva Waghmare")
+# # Footer
+# st.write("Made By Shashank Patil and Atharva Waghmare")
+
+
+
+
+
+
+import streamlit as st
+from PIL import Image
+import numpy as np
+from ultralytics import YOLO
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+
+# Load your model (replace 'best.pt' with your trained model file)
+MODEL_PATH = "best.pt"
+model = YOLO(MODEL_PATH)
+
+# App title and description
+st.title("Weapon Recognition App")
+st.write("Upload an image or use your webcam for weapon detection.")
+
+# Sidebar for input options
+st.sidebar.header("Input Options")
+input_type = st.sidebar.radio("Choose an input source:", ("Upload Image", "Webcam"))
+
+# Detection function
+def detect_objects(image):
+    results = model(image)
+    annotated_image = results[0].plot()
+    return annotated_image
+
+# Handle uploaded images
+if input_type == "Upload Image":
+    uploaded_file = st.sidebar.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file is not None:
+        # Read the image file
+        image = Image.open(uploaded_file)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
+        st.write("Processing...")
+        
+        # Convert image to OpenCV format
+        image_np = np.array(image)
+        processed_image = detect_objects(image_np)
+        
+        # Display the results
+        st.image(processed_image, caption="Detected Objects", use_column_width=True)
+
+# Webcam processing using streamlit-webrtc
+elif input_type == "Webcam":
+    class VideoTransformer(VideoTransformerBase):
+        def transform(self, frame):
+            # Convert the frame to an OpenCV image
+            img = frame.to_ndarray(format="bgr24")
+            processed_frame = detect_objects(img)
+            return processed_frame
+
+    webrtc_streamer(
+        key="weapon-detection",
+        video_transformer_factory=VideoTransformer,
+        media_stream_constraints={"video": True, "audio": False},
+    )
+
+
+
+
+
+
