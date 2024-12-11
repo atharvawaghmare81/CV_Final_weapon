@@ -3,6 +3,7 @@ from PIL import Image
 import numpy as np
 from ultralytics import YOLO
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+import av  # Required for frame handling with WebRTC
 
 # Load your model (replace 'best.pt' with your trained model file)
 MODEL_PATH = "best.pt"
@@ -18,7 +19,9 @@ input_type = st.sidebar.radio("Choose an input source:", ("Upload Image", "Webca
 
 # Detection function
 def detect_objects(image):
+    # Perform inference using the YOLO model
     results = model(image)
+    # Render the results on the image
     annotated_image = results[0].plot()
     return annotated_image
 
@@ -31,11 +34,11 @@ if input_type == "Upload Image":
         image = Image.open(uploaded_file)
         st.image(image, caption="Uploaded Image", use_column_width=True)
         st.write("Processing...")
-        
+
         # Convert image to OpenCV format
         image_np = np.array(image)
         processed_image = detect_objects(image_np)
-        
+
         # Display the results
         st.image(processed_image, caption="Detected Objects", use_column_width=True)
 
@@ -43,16 +46,27 @@ if input_type == "Upload Image":
 elif input_type == "Webcam":
     class VideoTransformer(VideoTransformerBase):
         def transform(self, frame):
-            # Convert the frame to an OpenCV image
+            # Convert the WebRTC frame to an OpenCV image
             img = frame.to_ndarray(format="bgr24")
+            # Detect objects in the frame
             processed_frame = detect_objects(img)
-            return processed_frame
+            # Convert the processed frame back to BGR format
+            return av.VideoFrame.from_ndarray(processed_frame, format="bgr24")
 
     webrtc_streamer(
         key="weapon-detection",
         video_transformer_factory=VideoTransformer,
-        media_stream_constraints={"video": True, "audio": False},
-    )# import streamlit as st
+        media_stream_constraints={"video": True, "audio": False},  # Only enable video
+    )
+
+
+
+
+
+
+
+
+# import streamlit as st
 # from PIL import Image
 # import cv2
 # import numpy as np
