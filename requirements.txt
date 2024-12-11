@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 absl-py
 aioice
 aiortc
@@ -112,3 +113,10 @@ watchdog
 Werkzeug
 wrapt
 streamlit-webrtc
+=======
+streamlit
+ultralytics
+pillow
+numpy
+opencv-python
+>>>>>>> 7c1d95b (added all files)
